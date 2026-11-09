@@ -48,7 +48,11 @@ pipeline {
 
         stage('Compilar') {
             steps {
-                sh './mvnw -B -ntp -DskipTests clean package'
+                // Se usa 'install' y no 'package': las etapas siguientes invocan los
+                // plugins de prueba por separado, y para eso cada modulo necesita
+                // encontrar en el repositorio local el jar de los modulos de los que
+                // depende (modulo-clasificacion depende de modulo-catalogo).
+                sh './mvnw -B -ntp -DskipTests clean install'
             }
         }
 
