@@ -54,9 +54,15 @@ Entregable4SosaLapetina/
 ### 3.1 Correr la aplicación en desarrollo
 
 ```bash
-./mvnw -pl app-web -am spring-boot:run
+./scripts/correr-dev.sh
 ```
 → http://localhost:8090 (ambiente `DESARROLLO`, datos en `./datos/juegos.json`)
+
+El script hace dos pasos, y los dos hacen falta: primero `./mvnw -DskipTests install`,
+que deja los jars de los módulos en el repositorio local, y después
+`./mvnw -pl app-web spring-boot:run`. No sirve un único `./mvnw -pl app-web -am
+spring-boot:run`, porque con `-am` Maven intenta ejecutar el goal también sobre el POM
+padre, que no tiene clase main.
 
 ### 3.2 Correr todas las pruebas
 
@@ -91,7 +97,7 @@ El job `catalogo-videojuegos` ya queda creado apuntando a `REPO_URL`.
 
 | Ambiente | Cómo se levanta | URL | Datos |
 |---|---|---|---|
-| Desarrollo | `./mvnw -pl app-web -am spring-boot:run` | http://localhost:8090 | `./datos/juegos.json` |
+| Desarrollo | `./scripts/correr-dev.sh` | http://localhost:8090 | `./datos/juegos.json` |
 | Pruebas | lo levanta Maven durante las pruebas de integración | puerto aleatorio | `target/it-data/` |
 | Producción simulada | la despliega el pipeline de Jenkins | http://localhost:8091 | volumen Docker `catalogo-datos-prod` |
 

@@ -103,7 +103,7 @@ pipeline destruye y recrea el contenedor, pero los datos quedan en el volumen.
 
 | Ambiente | Cómo se levanta | URL | Datos |
 |---|---|---|---|
-| Desarrollo | `./mvnw -pl app-web -am spring-boot:run` | `localhost:8090` | `./datos/juegos.json` |
+| Desarrollo | `./scripts/correr-dev.sh` | `localhost:8090` | `./datos/juegos.json` |
 | Pruebas | Maven, durante las pruebas de integración | puerto aleatorio | `target/it-data/` |
 | Producción simulada | desplegado por el pipeline de Jenkins | `localhost:8091` | volumen `catalogo-datos-prod` |
 
@@ -274,10 +274,17 @@ cd catalogo-videojuegos
 ## 5.3 Correr la aplicación en desarrollo
 
 ```bash
-./mvnw -pl app-web -am spring-boot:run
+./scripts/correr-dev.sh
 ```
 
 La aplicación queda en <http://localhost:8090> con la etiqueta `DESARROLLO`.
+
+El script encadena dos comandos, y los dos son necesarios:
+`./mvnw -DskipTests install`, que deja los jars de los módulos en el repositorio local
+de Maven, y después `./mvnw -pl app-web spring-boot:run`. Un único
+`./mvnw -pl app-web -am spring-boot:run` falla con *Unable to find a suitable main
+class*, porque `-am` arrastra al POM padre al reactor y el plugin intenta ejecutarlo
+también sobre él.
 
 ## 5.4 Correr las pruebas
 
