@@ -105,7 +105,7 @@ El `Jenkinsfile` define estas etapas:
 | Etapa | Qué hace |
 |---|---|
 | Checkout | Clona el repositorio y registra commit, autor y mensaje |
-| Compilar | `./mvnw -DskipTests clean package` |
+| Compilar | `./mvnw -DskipTests clean install` (install, no package: ver 6.2) |
 | Pruebas unitarias | `./mvnw surefire:test` (`*Test.java`) + publicación de resultados JUnit |
 | Pruebas de integración | `./mvnw failsafe:integration-test failsafe:verify` (`*IT.java`) + resultados JUnit |
 | Archivar artefacto | Guarda `app-web.jar` como artefacto del build |
@@ -142,3 +142,29 @@ Dos opciones:
 | GET | `/api/generos` | Géneros admitidos |
 | GET | `/api/estadisticas` | Cantidad de juegos por género |
 | GET | `/actuator/health` | Salud de la aplicación (lo usa el smoke test) |
+
+## 8. Apuntar Jenkins al repositorio real
+
+La URL del repositorio que Jenkins clona se define con la variable `REPO_URL`:
+
+```bash
+cd jenkins
+docker compose down
+REPO_URL=https://github.com/USUARIO/catalogo-videojuegos.git docker compose up -d
+```
+
+Al arrancar, *Configuration as Code* vuelve a aplicar `jenkins/casc.yaml` y actualiza el
+job con la URL nueva. El historial de builds y la caché de Maven se conservan porque
+viven en el volumen `jenkins-home`.
+
+Si el repositorio es privado, hay que agregar en Jenkins una credencial de tipo
+*Username with password* con un *personal access token* de GitHub y seleccionarla en la
+configuración del job.
+
+## 9. Documentación
+
+- `docs/Informe_Entregable4_SosaLapetina.pdf` — informe técnico (arquitectura,
+  decisiones, instructivo, errores del pipeline y conclusiones).
+- `docs/GUIA_DEFENSA.md` — guion paso a paso para la presentación en clase.
+- `docs/informe.md` y `docs/generar-pdf.sh` — fuente del informe y script que lo
+  regenera en PDF.

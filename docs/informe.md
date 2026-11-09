@@ -119,7 +119,7 @@ El `Jenkinsfile` es declarativo y está versionado en la raíz del repositorio:
 | # | Etapa | Qué hace | Si falla |
 |---|---|---|---|
 | 1 | Checkout | Clona el repo y registra commit, autor y mensaje | No hay build |
-| 2 | Compilar | `./mvnw -DskipTests clean package` | Producción intacta |
+| 2 | Compilar | `./mvnw -DskipTests clean install` (install, no package: ver 6.2) | Producción intacta |
 | 3 | Pruebas unitarias | `./mvnw surefire:test` (`*Test.java`), publica resultados JUnit | Producción intacta |
 | 4 | Pruebas de integración | `./mvnw failsafe:integration-test failsafe:verify` (`*IT.java`) | Producción intacta |
 | 5 | Archivar artefacto | Guarda `app-web.jar` con fingerprint | — |
@@ -313,3 +313,266 @@ etiqueta `PRODUCCIÓN`.
 ./scripts/desplegar-local.sh   # desplegar a producción sin pasar por Jenkins
 ./scripts/detener-todo.sh      # detener Jenkins y producción
 ```
+
+# 6. Errores encontrados al ejecutar el pipeline y cómo se resolvieron
+
+Esta sección recoge los problemas reales que aparecieron al poner el pipeline en
+funcionamiento, en el orden en que los fuimos encontrando.
+
+## 6.1 Maven no estaba instalado y compilarlo tardaba demasiado
+
+**Síntoma.** El proyecto no compilaba en la máquina de desarrollo: no había `mvn`, y al
+instalarlo con Homebrew el gestor empezó a compilar dependencias desde el código fuente
+(cmake, entre otras) porque no había paquetes precompilados para esa versión de macOS.
+
+**Causa.** Depender de una herramienta instalada manualmente en cada máquina.
+
+**Solución.** Se agregó el **Maven Wrapper** al repositorio (`mvnw`, `mvnw.cmd`,
+`.mvn/wrapper/`). El wrapper descarga por sí solo la versión de Maven que declara el
+proyecto (3.9.9). Esto resolvió el problema de entorno y, de paso, eliminó un requisito
+de la imagen de Jenkins: el pipeline usa `./mvnw`, no un Maven instalado en el servidor,
+así que desarrolladores y CI construyen con exactamente la misma versión.
+
+## 6.2 El pipeline fallaba al resolver las dependencias entre módulos
+
+**Síntoma.** El build pasaba la etapa *Compilar* y fallaba en *Pruebas unitarias*:
+
+```
+[ERROR] Failed to execute goal on project modulo-clasificacion:
+        Could not resolve dependencies for project uy.edu.um.pa:modulo-clasificacion:jar:1.0.0
+[ERROR] dependency: uy.edu.um.pa:modulo-catalogo:jar:1.0.0 (compile)
+[ERROR]   Could not find artifact uy.edu.um.pa:modulo-catalogo:jar:1.0.0 in central
+```
+
+Lo llamativo es que el mismo proyecto compilaba y pasaba todas las pruebas localmente
+con `mvn clean verify`.
+
+**Causa.** Este fue el error más instructivo del entregable. El pipeline separa las
+pruebas en dos etapas invocando los plugins directamente (`mvnw surefire:test` y
+`mvnw failsafe:integration-test`). Cuando se invoca un *goal* suelto, Maven no ejecuta
+el ciclo de vida completo, y por lo tanto los módulos del reactor no tienen un artefacto
+empaquetado que ofrecerse entre sí: `modulo-clasificacion` sale a buscar el jar de
+`modulo-catalogo` al repositorio local, no lo encuentra, y lo busca en Maven Central,
+donde obviamente no existe. Localmente nunca se notó porque `mvn clean verify` corre el
+ciclo completo y la resolución se hace dentro del reactor.
+
+**Solución.** Cambiar la etapa *Compilar* de `clean package` a **`clean install`**, de
+modo que los jars de los dos módulos queden instalados en el repositorio local de Maven
+antes de que las etapas siguientes los necesiten. El repositorio local vive en el
+volumen persistente de Jenkins (`-Dmaven.repo.local=/var/jenkins_home/.m2/repository`),
+así que además sirve de caché entre builds.
+
+## 6.3 Jenkins se negaba a clonar un repositorio local
+
+**Síntoma.** Mientras probábamos el pipeline antes de tener el repositorio en GitHub,
+apuntamos el job a un repositorio local dentro del contenedor y el checkout abortó:
+
+```
+ERROR: Checkout of Git remote 'file:///var/jenkins_home/repo-demo.git' aborted
+       because it references a local directory, which may be insecure.
+```
+
+**Causa.** El plugin de Git de Jenkins bloquea por seguridad los checkouts desde rutas
+del sistema de archivos (un `Jenkinsfile` malicioso podría leer directorios del
+servidor). Se habilitan con la propiedad de sistema
+`hudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT`.
+
+**Solución.** En lugar de bajar una protección del servidor, servimos el repositorio de
+prueba por protocolo Git (`git daemon`) y apuntamos el job a `git://...`. Con el
+repositorio real de GitHub el problema no se presenta, porque la URL es remota.
+
+## 6.4 Git rechazaba el repositorio por "dubious ownership"
+
+**Síntoma.** Al clonar dentro del contenedor:
+
+```
+fatal: detected dubious ownership in repository at '/tmp/proyecto/.git'
+```
+
+**Causa.** El contenedor de Jenkins corre como `root` y el repositorio copiado pertenecía
+a otro usuario; desde la versión 2.35.2, Git se niega a operar sobre repositorios de
+otro dueño.
+
+**Solución.** `git config --global --add safe.directory "*"` dentro del contenedor. Es
+el mismo mensaje que aparece con frecuencia al montar carpetas del host en contenedores,
+así que valía la pena dejarlo documentado.
+
+# 7. Demostración: los dos casos de la defensa
+
+## 7.1 Caso 1 — Integración exitosa
+
+1. Se modifica algo visible del código, por ejemplo agregar un género nuevo al enum
+   `Genero` o cambiar el título de la página.
+2. `git commit` y `git push` a `main`.
+3. En menos de dos minutos Jenkins detecta el cambio (o se dispara el webhook) y arranca
+   el build. El tablero muestra las ocho etapas pasando en verde.
+4. Al terminar la etapa *Desplegar a producción*, el contenedor `catalogo-prod` se
+   recrea con la imagen nueva y el *smoke test* confirma que responde.
+5. Se recarga <http://localhost:8091> y se ve el cambio en producción, con el número de
+   versión actualizado en la cabecera. Los juegos cargados siguen estando: el volumen de
+   datos sobrevivió al despliegue.
+
+## 7.2 Caso 2 — Fallo en las pruebas
+
+1. Se introduce un error a propósito. Por ejemplo, en `ServicioClasificacion.normalizar`
+   se devuelve el texto sin normalizar, lo que rompe la prueba unitaria
+   `normalizaGenero` y la prueba de integración `filtradoPorGenero`.
+2. Se hace *push*. Jenkins arranca el build.
+3. Las etapas *Checkout* y *Compilar* pasan; la etapa **Pruebas unitarias** falla.
+   El pipeline se detiene ahí: **no se construye la imagen ni se despliega nada**.
+4. Jenkins muestra en rojo la etapa que falló, publica el reporte JUnit con el nombre
+   exacto de la prueba (`ServicioClasificacionTest.normalizaGenero`, esperaba `"RPG"` y
+   recibió `"rpg"`) e informa el autor y el mensaje del commit responsable.
+5. **Producción no se vio afectada**: <http://localhost:8091> sigue sirviendo la versión
+   anterior, que es el comportamiento que se busca.
+6. Procedimiento de resolución: el desarrollador corrige el código (o revierte el commit
+   con `git revert`), vuelve a hacer *push*, y el pipeline corre de nuevo. Recién cuando
+   todas las pruebas pasan, la nueva versión llega a producción.
+
+Este segundo caso es el que justifica tener el pipeline: el error quedó contenido entre
+el *push* y el despliegue, sin intervención manual y sin que nadie tuviera que acordarse
+de correr las pruebas.
+
+# 8. Conclusiones
+
+El trabajo dejó una separación muy clara entre dos cosas que en los entregables
+anteriores venían mezcladas: **escribir código que funciona** y **tener un proceso que
+garantice que lo que llega al ambiente de producción funciona**. La aplicación en sí es
+deliberadamente modesta; el valor está en que ningún cambio llega a producción sin haber
+pasado por compilación, pruebas unitarias de cada módulo, pruebas de integración de todo
+el sistema y una verificación de salud posterior al despliegue, todo sin intervención
+manual.
+
+Algunas conclusiones concretas:
+
+- **El pipeline como código vale la pena.** Tener el `Jenkinsfile` versionado junto al
+  proyecto significa que el proceso de construcción evoluciona con el código y que
+  cualquier cambio al pipeline queda registrado en el historial de Git, revisable como
+  cualquier otro cambio. Llevar la misma idea a la configuración del servidor
+  (`jenkins/casc.yaml`) hizo que levantar el entorno completo en otra máquina fuera un
+  solo comando.
+- **Separar pruebas unitarias de pruebas de integración cambia el diagnóstico.** Cuando
+  falla una etapa, el tablero dice inmediatamente si se rompió la lógica de un módulo o
+  la interacción entre módulos. Esa distinción no cuesta nada (es una convención de
+  nombres) y ahorra tiempo cada vez que algo falla.
+- **El ambiente de producción simulado en Docker obligó a pensar en el estado.** Como
+  cada despliegue destruye y recrea el contenedor, los datos tenían que vivir fuera de
+  él; separarlos en un volumen fue lo que convirtió el despliegue en algo repetible sin
+  perder el catálogo cargado.
+
+## 8.1 Dificultades encontradas
+
+- **Docker dentro de Docker.** Entender que el contenedor de Jenkins no debía *contener*
+  un daemon de Docker sino *usar* el del host fue el concepto que más costó. Una vez
+  claro, se resolvió montando `/var/run/docker.sock`, pero obliga a correr el contenedor
+  de Jenkins como `root` en Docker Desktop para poder escribir en ese socket.
+- **La red entre contenedores.** Verificar el despliegue desde Jenkins no es trivial:
+  dentro del contenedor de Jenkins, `localhost` no es el host, así que el smoke test no
+  puede apuntar a `localhost:8091`. Se resolvió creando una red de Docker compartida
+  (`catalogo-red`) a la que se conectan Jenkins y la aplicación, de modo que el smoke
+  test llama al contenedor por su nombre (`http://catalogo-prod:8090`). Esto además hace
+  que el pipeline funcione igual en Linux y en Docker Desktop.
+- **El webhook de GitHub contra un Jenkins local.** GitHub no puede alcanzar
+  `localhost:8080`. Se dejó el webhook configurado para cuando se expone Jenkins con un
+  túnel, y el *polling* del SCM como mecanismo de respaldo para la demostración.
+- **Tiempos del primer build.** La primera ejecución del pipeline es notablemente más
+  lenta que las siguientes porque Maven baja todas las dependencias dentro del
+  contenedor. Se mitigó dejando el repositorio local de Maven en el volumen persistente
+  de Jenkins (`/var/jenkins_home/.m2/repository`), de modo que los builds siguientes
+  reutilizan la caché.
+
+## 8.2 Trabajo futuro
+
+Lo primero que agregaríamos es un **ambiente intermedio de UAT** con una aprobación
+manual en Jenkins (`input`) antes de promover a producción, que es el camino natural de
+este pipeline. Después, publicar las imágenes en un registro en lugar de dejarlas en el
+daemon local, y reemplazar el `docker run` del despliegue por un `docker compose up` con
+el archivo versionado, para que la definición del ambiente de producción también sea
+código.
+
+# Anexo A — Evidencia de ejecución del pipeline
+
+## A.1 Build exitoso (caso 1)
+
+Salida resumida de una ejecución completa del pipeline:
+
+```
+[Pipeline] { (Checkout)
+Commit ba5b8a7 de Sosa Lapetina: Corrige el pipeline: instalar los modulos
+[Pipeline] { (Compilar)
+[INFO] BUILD SUCCESS
+[Pipeline] { (Pruebas unitarias)
+[INFO] Tests run: 9, Failures: 0 -- in uy.edu.um.pa.catalogo.ServicioCatalogoTest
+[INFO] Tests run: 3, Failures: 0 -- in uy.edu.um.pa.catalogo.RepositorioJuegosArchivoTest
+[INFO] Tests run: 6, Failures: 0 -- in uy.edu.um.pa.clasificacion.GeneroTest
+[INFO] Tests run: 9, Failures: 0 -- in uy.edu.um.pa.clasificacion.ServicioClasificacionTest
+[INFO] Tests run: 3, Failures: 0 -- in uy.edu.um.pa.web.ServicioAplicacionTest
+[Pipeline] { (Pruebas de integracion)
+[INFO] Tests run: 6, Failures: 0 -- in uy.edu.um.pa.web.CatalogoApiIT
+[INFO] Tests run: 4, Failures: 0 -- in uy.edu.um.pa.web.PaginaWebIT
+[Pipeline] { (Archivar artefacto)
+[Pipeline] { (Construir imagen Docker)
+[Pipeline] { (Desplegar a produccion)
+Version actualmente desplegada: catalogo-videojuegos:2
++ docker rm -f catalogo-prod
++ docker run -d --name catalogo-prod --network catalogo-red -p 8091:8090 \
+      -v catalogo-datos-prod:/app/datos -e APP_AMBIENTE=PRODUCCION \
+      catalogo-videojuegos:3
+[Pipeline] { (Smoke test de produccion)
+Esperando a que la aplicacion responda...
+La aplicacion esta arriba (intento 4)
+La API responde correctamente
+[Pipeline] { (Declarative: Post Actions)
+ DESPLIEGUE EXITOSO  -  build #3  -  commit ba5b8a7
+ Produccion: http://localhost:8091
+Finished: SUCCESS
+```
+
+**Totales:** 30 pruebas unitarias y 10 pruebas de integración, en 8 etapas.
+
+## A.2 Build fallido (caso 2)
+
+Se modificó `ServicioClasificacion.normalizar` para que devolviera el texto sin
+normalizar. Resultado real del pipeline:
+
+```
+[Pipeline] { (Checkout)
+[Pipeline] { (Compilar)
+[Pipeline] { (Pruebas unitarias)
+[ERROR] Tests run: 9, Failures: 2 <<< FAILURE! -- in ServicioClasificacionTest
+[ERROR] ServicioClasificacionTest.normalizaGenero -- <<< FAILURE!
+        org.opentest4j.AssertionFailedError: expected: <RPG> but was: <rpg>
+[ERROR] ServicioClasificacionTest.falloAlNormalizar -- <<< FAILURE!
+[ERROR] Tests run: 15, Failures: 2, Errors: 0, Skipped: 0
+
+[Pipeline] { (Pruebas de integracion)
+Stage "Pruebas de integracion" skipped due to earlier failure(s)
+[Pipeline] { (Archivar artefacto)
+Stage "Archivar artefacto" skipped due to earlier failure(s)
+[Pipeline] { (Construir imagen Docker)
+Stage "Construir imagen Docker" skipped due to earlier failure(s)
+[Pipeline] { (Desplegar a produccion)
+Stage "Desplegar a produccion" skipped due to earlier failure(s)
+[Pipeline] { (Smoke test de produccion)
+Stage "Smoke test de produccion" skipped due to earlier failure(s)
+
+[Pipeline] { (Declarative: Post Actions)
+ PIPELINE FALLIDO  -  build #4  -  commit ba7a796
+ Autor del cambio: Sosa Lapetina
+No se modifico produccion: el fallo ocurrio antes del despliegue.
+Finished: FAILURE
+```
+
+Verificación posterior sobre el ambiente de producción:
+
+```
+$ docker inspect -f '{{.Config.Image}}' catalogo-prod
+catalogo-videojuegos:3            ← sigue la versión del build anterior
+
+$ curl -s http://localhost:8091/actuator/health
+{"status":"UP", ...}
+```
+
+Es decir: el commit defectuoso **nunca llegó a producción**, el pipeline informó qué
+prueba falló y con qué valor, y el servicio siguió disponible durante todo el episodio.
+Al revertir el cambio y volver a ejecutar, el pipeline terminó nuevamente en verde.
