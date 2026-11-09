@@ -1,0 +1,11 @@
+workflow-aggregator
+pipeline-stage-view
+git
+github
+github-branch-source
+junit
+docker-workflow
+timestamper
+ws-cleanup
+configuration-as-code
+job-dsl

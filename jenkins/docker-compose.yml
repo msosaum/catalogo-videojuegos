@@ -1,0 +1,36 @@
+# Servidor Jenkins del entregable.
+#   cd jenkins && docker compose up -d --build
+# Jenkins queda en http://localhost:8080
+services:
+  jenkins:
+    build: .
+    image: jenkins-catalogo:lts
+    container_name: jenkins-catalogo
+    # Necesario en Docker Desktop para que el usuario del contenedor pueda usar
+    # el socket del daemon de Docker del host.
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      # El pipeline usa el daemon de Docker del host para construir imagenes
+      # y desplegar el contenedor de produccion.
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      JENKINS_ADMIN_ID: admin
+      JENKINS_ADMIN_PASSWORD: admin
+      # URL del repositorio GitHub que Jenkins va a clonar (se puede sobreescribir
+      # exportando REPO_URL antes de levantar el contenedor).
+      REPO_URL: ${REPO_URL:-https://github.com/CAMBIAR/catalogo-videojuegos.git}
+    networks:
+      - catalogo-red
+    restart: unless-stopped
+
+volumes:
+  jenkins-home:
+
+networks:
+  catalogo-red:
+    name: catalogo-red
+    external: true

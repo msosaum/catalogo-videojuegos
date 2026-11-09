@@ -1,0 +1,10 @@
+.git
+docs
+jenkins
+datos
+**/target/classes
+**/target/test-classes
+**/target/generated-sources
+**/target/maven-status
+**/target/surefire-reports
+**/target/failsafe-reports

@@ -1,0 +1,26 @@
+# Uso manual (sin Jenkins): levanta el ambiente de produccion simulado.
+#   ./mvnw -B -DskipTests package && docker compose up -d --build
+services:
+  catalogo-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: catalogo-videojuegos:latest
+    container_name: catalogo-prod
+    ports:
+      - "8091:8090"
+    environment:
+      APP_AMBIENTE: PRODUCCION
+    volumes:
+      - catalogo-datos-prod:/app/datos
+    networks:
+      - catalogo-red
+    restart: unless-stopped
+
+volumes:
+  catalogo-datos-prod:
+
+networks:
+  catalogo-red:
+    name: catalogo-red
+    external: true

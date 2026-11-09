@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Catalogo de Videojuegos</title>
+    <link rel="stylesheet" th:href="@{/estilos.css}">
+</head>
+<body>
+
+<header class="cabecera">
+    <div>
+        <h1>Catalogo de Videojuegos</h1>
+        <p class="subtitulo">Programacion Avanzada &middot; Entregable 4 &middot; CI/CD</p>
+    </div>
+    <div class="ambiente">
+        <span class="chip" th:text="${ambiente}">DESARROLLO</span>
+        <span class="version" th:text="'v' + ${version}">v1.0.0</span>
+    </div>
+</header>
+
+<main>
+
+    <div class="aviso ok" th:if="${mensaje}" th:text="${mensaje}"></div>
+    <div class="aviso error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="panel">
+        <h2>Registrar un juego</h2>
+        <form method="post" th:action="@{/juegos}" th:object="${juegoForm}" class="formulario">
+            <label>
+                Titulo
+                <input type="text" th:field="*{titulo}" required placeholder="Ej: Celeste">
+            </label>
+            <label>
+                Genero
+                <select th:field="*{genero}" required>
+                    <option value="">Elegir...</option>
+                    <option th:each="g : ${generos}" th:value="${g}" th:text="${g}"></option>
+                </select>
+            </label>
+            <label>
+                Anio
+                <input type="number" th:field="*{anio}" required min="1958" max="2035" placeholder="2017">
+            </label>
+            <label>
+                URL de la imagen (opcional)
+                <input type="url" th:field="*{imagenUrl}" placeholder="https://...">
+            </label>
+            <button type="submit">Agregar al catalogo</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>Filtrar por genero</h2>
+        <form method="get" th:action="@{/}" class="filtro">
+            <select name="genero">
+                <option value="" th:selected="${generoSeleccionado == ''}">Todos los generos</option>
+                <option th:each="g : ${generos}" th:value="${g}" th:text="${g}"
+                        th:selected="${g == generoSeleccionado}"></option>
+            </select>
+            <button type="submit">Filtrar</button>
+            <a class="limpiar" th:href="@{/}">Ver todos</a>
+        </form>
+        <ul class="estadisticas">
+            <li th:each="e : ${estadisticas}">
+                <span th:text="${e.key}">Genero</span>
+                <strong th:text="${e.value}">0</strong>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>
+            Catalogo
+            <small th:text="'(' + ${#lists.size(juegos)} + ' de ' + ${total} + ' juegos)'"></small>
+        </h2>
+
+        <p class="vacio" th:if="${#lists.isEmpty(juegos)}">
+            No hay juegos que coincidan con el filtro.
+        </p>
+
+        <div class="grilla">
+            <article class="tarjeta" th:each="j : ${juegos}">
+                <div class="portada">
+                    <img th:if="${j.imagenUrl != null}" th:src="${j.imagenUrl}" th:alt="${j.titulo}">
+                    <div th:unless="${j.imagenUrl != null}" class="sin-portada" th:text="${j.titulo}"></div>
+                </div>
+                <h3 th:text="${j.titulo}">Titulo</h3>
+                <p class="meta">
+                    <span class="genero" th:text="${j.genero}">Genero</span>
+                    <span th:text="${j.anio}">2000</span>
+                </p>
+                <form method="post" th:action="@{'/juegos/' + ${j.id} + '/eliminar'}">
+                    <button type="submit" class="borrar">Eliminar</button>
+                </form>
+            </article>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p>Sosa &middot; Lapetina &mdash; Universidad de Montevideo, 2026</p>
+</footer>
+
+</body>
+</html>
