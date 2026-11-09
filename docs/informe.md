@@ -397,6 +397,31 @@ otro dueño.
 el mismo mensaje que aparece con frecuencia al montar carpetas del host en contenedores,
 así que valía la pena dejarlo documentado.
 
+## 6.5 El primer build contra GitHub clonó la URL anterior
+
+**Síntoma.** Después de crear el repositorio en GitHub y relevantar Jenkins con la
+variable `REPO_URL` apuntando al repositorio real, el primer build falló en el checkout
+intentando clonar la URL de ejemplo que se había usado antes:
+
+```
+> git fetch --tags --force --progress -- https://github.com/EJEMPLO/catalogo-videojuegos.git
+stderr: remote: Invalid username or token.
+fatal: Authentication failed
+```
+
+Lo desconcertante es que la configuración del job ya mostraba la URL correcta.
+
+**Causa.** Jenkins persiste la cola de builds (`queue.xml`) entre reinicios. El trigger
+de *polling* había encolado un build con la configuración vieja antes de que
+apagáramos el contenedor, y al volver a arrancar ese build se ejecutó primero, con la
+URL anterior. La actualización que hace *Configuration as Code* al arrancar no alcanza a
+los builds que ya estaban en la cola.
+
+**Solución.** Descartar ese primer build y volver a disparar: el siguiente ya clonó del
+repositorio correcto y terminó en verde. Conviene tenerlo presente el día de la defensa:
+si se cambia la configuración del job y hay un build encolado, el primer resultado puede
+corresponder a la configuración anterior.
+
 # 7. Demostración: los dos casos de la defensa
 
 ## 7.1 Caso 1 — Integración exitosa
