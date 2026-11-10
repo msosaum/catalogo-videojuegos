@@ -112,102 +112,94 @@ cosas, y no querés ese silencio en vivo.
 5. El editor con el `Jenkinsfile` abierto
 6. Una terminal, ya parada en la carpeta del proyecto
 
-**Reparto sugerido entre dos.** Una presenta las slides 1 a 8 (el qué y el cómo) y la
-otra maneja la demo en vivo, slides 9 a 13. Quien no está hablando, maneja el mouse: es
-mucho más prolijo que cambiar de computadora en el medio.
+**El reparto entre las dos está en la Parte 1.5**, con los pases de posta y las reglas
+del dúo.
 
 ---
 
 # Parte 1.5 — El reparto entre las dos
 
-## El criterio
+## Cómo queda
 
-No conviene partir la presentación por la mitad ("vos la primera parte, yo la segunda"),
-porque deja a una sola persona con los dos momentos de riesgo —las demos en vivo— y a la
-otra sin nada que hacer durante seis minutos.
+Miranda maneja la computadora de punta a punta (el proyecto está en su máquina) y es
+quien hace las tres demos en vivo. Emi lleva la parte explicativa. El reparto de la voz
+queda así:
 
-Mejor repartir **por tema**, con esta idea: *quien explica el pipeline es quien lo hace
-correr*. La demo es el pipeline en acción, así que la explicación y la ejecución quedan
-en la misma voz y no hay que repetir nada.
+| Slides | Quién habla | Qué es |
+|---|---|---|
+| 1 a 6 | **Emi** | Portada, el encargo, la aplicación, la arquitectura, la infraestructura y las pruebas |
+| 7 a 10 | **Miranda** | El pipeline, los disparadores y las dos demos en vivo |
+| 11 y 12 | **Emi** | Los errores que encontramos y las decisiones tomadas |
+| 13 | **Miranda** | El cierre |
 
-Eso da tres bloques y dos pases de posta:
+Son unos 8 minutos cada una: parejo. Emi abre, Miranda cierra, y hay solo tres cambios
+de voz en toda la presentación.
 
-| Bloque | Slides | Quién | Tiempo |
-|---|---|---|---|
-| **A — Contexto, producto y pruebas** | 1 a 6 | Persona 1 | ≈ 5 min + 2 min de demo de la app |
-| **B — Pipeline y demos en vivo** | 7 a 10 | Persona 2 | ≈ 8 min |
-| **C — Errores, decisiones y cierre** | 11 a 13 | Persona 1 | ≈ 3 min |
+## Las tres demos son de Miranda
 
-## Quién toma cuál
+| Momento | Slide | Dura |
+|---|---|---|
+| La aplicación funcionando: agregar un juego, filtrar por género | 3 | ≈ 2 min |
+| Caso 1: un push que sale bien y llega a producción | 9 | ≈ 3 min |
+| Caso 2: un push que rompe las pruebas y no llega | 10 | ≈ 3 min |
 
-**Persona 2 (bloque B) debería ser quien esté más cómoda con la terminal y con Git**,
-porque es quien va a tipear en vivo delante de todos. No es cuestión de saber más: es
-cuestión de que tipear con gente mirando pone nerviosa a cualquiera, y conviene que lo
-haga quien lo tenga más automatizado.
+La de la slide 3 cae dentro del bloque de Emi: Emi explica los dos módulos mientras
+Miranda hace clic en el navegador. Las otras dos son enteramente de Miranda, slide y
+demo.
 
-**Persona 1 abre y cierra.** Es un buen lugar si preferís hablar a tipear: arrancás con
-el encuadre, explicás la aplicación y las pruebas, y volvés al final con la parte más
-lucida del entregable, que es el error de Maven de la slide 11.
+## Lo que hay que cuidar
+
+**Miranda narra sus demos, no las tipea en silencio.** Es la diferencia entre que la
+demo cuente como exposición propia o que parezca que una presentó y la otra operó la
+computadora. Mientras el pipeline corre, la voz es de Miranda: *"ahí arrancó solo, están
+pasando las 30 unitarias, ahora las de integración…"*.
+
+**Tener la compu no define quién habla.** Miranda maneja el teclado todo el tiempo —
+incluso durante las slides de Emi, cambiando de slide y abriendo pestañas — y eso está
+bien: quien habla no debería estar peleando con el trackpad.
 
 ## Los pases de posta
 
-Que la transición sea una frase dicha, no un silencio incómodo mientras alguien se para.
+Que la transición sea una frase dicha, no un silencio mientras alguien se acomoda.
 
-**De Persona 1 a Persona 2, al terminar la slide 6:**
+**Emi → Miranda, al terminar la slide 6:**
 
-> *Hasta acá qué construimos y cómo lo probamos. Ahora [Emi] les muestra el pipeline que
-> corre todo esto solo.*
+> *Hasta acá qué construimos y cómo lo probamos. Ahora Miranda les muestra el pipeline
+> que corre todo esto solo.*
 
-**De Persona 2 a Persona 1, al terminar la slide 10:**
+**Miranda → Emi, al terminar la slide 10:**
 
-> *Eso es el pipeline funcionando. [Miranda] cierra contando qué se nos rompió en el
-> camino y por qué tomamos algunas decisiones.*
+> *Eso es el pipeline funcionando. Emi cuenta qué se nos rompió en el camino y por qué
+> tomamos algunas decisiones.*
+
+**Emi → Miranda, al terminar la slide 12:**
+
+> *Y para cerrar, Miranda.*
 
 ## Las reglas del dúo
 
-- **Una sola computadora.** Cambiar de máquina en el medio se ve desprolijo y come
-  tiempo. Todo desde una, con las pestañas ya abiertas.
-- **Quien no habla, maneja el mouse.** Cambia de slide, abre la pestaña que hace falta,
-  recarga producción cuando el build termina. Así quien habla no pelea con el trackpad.
+- **Una sola computadora**, la de Miranda, con las pestañas ya abiertas antes de empezar.
 - **Mientras Jenkins corre, hablan las dos.** Son los 60 a 90 segundos más largos de la
-  presentación si nadie dice nada. Quien maneja el mouse puede ir narrando las etapas
-  que van pasando mientras la otra sigue con la explicación.
-- **Las preguntas las contesta quien dio esa parte.** Si te preguntan algo de tu bloque,
-  contestá vos aunque la otra lo sepa. Si no sabés, pasala en voz alta: *"eso lo armó
-  [Emi], que lo explica mejor"*. Es mucho mejor que improvisar.
-- **Las dos tienen que poder contestar lo básico de todo.** El profesor puede
-  preguntarle a cualquiera cualquier cosa. La Parte 0 y la Parte 3 de este guion son
-  justamente para eso: léanlas las dos.
-
-## Variante, si las dos quieren hacer demo
-
-Si prefieren que cada una tenga su momento en vivo, se puede repartir así:
-
-| Slides | Quién |
-|---|---|
-| 1 a 6 | Persona 1 |
-| 7 y 8 (pipeline y disparadores) | Persona 2 |
-| 9 (Caso 1, integración exitosa) | Persona 1 |
-| 10 (Caso 2, el fallo) | Persona 2 |
-| 11 a 13 | Persona 1 y Persona 2, una slide cada una |
-
-Es más parejo, pero tiene dos pases de posta más en el momento de mayor tensión. Si no
-lo ensayan al menos una vez completo, quedense con el reparto de tres bloques.
+  presentación si nadie dice nada. Emi puede acotar algo de las etapas que van pasando
+  mientras Miranda sigue con la explicación.
+- **Las preguntas las contesta quien dio esa parte.** Si no sabés, pasala en voz alta:
+  *"eso lo armó Emi, que lo explica mejor"*. Es mucho mejor que improvisar.
+- **Las dos tienen que poder contestar lo básico de todo.** El docente puede preguntarle
+  a cualquiera cualquier cosa. La Parte 0 y la Parte 3 de este guion son justamente para
+  eso: léanlas las dos.
 
 ## Ensayo
 
-Háganlo una vez entero, con las dos demos de verdad y cronómetro. No para memorizar: para
-descubrir dónde se pisan y cuánto tardan los builds en la máquina que van a usar. Una
-sola pasada completa cambia totalmente cómo sale.
-
----
+Una pasada completa, con las dos demos de verdad y cronómetro. No para memorizar: para
+descubrir dónde se pisan, cuánto tarda el build en esta máquina y si los pases de posta
+suenan naturales. Una sola pasada completa cambia totalmente cómo sale.
 
 # Parte 2 — Qué decir en cada slide
 
 Lo que está en cursiva es la idea, no un texto para memorizar. Decilo con tus palabras:
 si suena leído, se nota.
 
-## Slide 1 · Portada — 30 segundos
+## Slide 1 · Portada — 30 segundos  ·  **Emi**
 
 **Mostrar:** la portada.
 
@@ -220,7 +212,7 @@ que nadie toque un botón.*
 > No te disculpes por la app ("es simple", "no llegamos a..."). Fue una decisión, no una
 > limitación. Decilo así.
 
-## Slide 2 · El encargo — 1 minuto
+## Slide 2 · El encargo — 1 minuto  ·  **Emi**
 
 **Mostrar:** las cuatro tarjetas.
 
@@ -234,7 +226,7 @@ tomamos eso en serio: elegimos el dominio más chico de los tres propuestos para
 poner el esfuerzo en la automatización, y para tener menos cosas que puedan fallar hoy
 acá.*
 
-## Slide 3 · La aplicación — 1 minuto
+## Slide 3 · La aplicación — 1 minuto  ·  **Emi, con Miranda en el navegador**
 
 **Mostrar:** las dos tarjetas de módulos y, abajo, el recuadro del punto de integración.
 
@@ -252,7 +244,7 @@ es justamente lo que prueban las pruebas de integración.*
 > señalá la etiqueta PRODUCCIÓN arriba a la derecha. **Dos minutos como máximo**, y volvé
 > a las slides. Es la parte que menos puntos da.
 
-## Slide 4 · Arquitectura — 1 minuto
+## Slide 4 · Arquitectura — 1 minuto  ·  **Emi**
 
 **Mostrar:** la pila de los tres módulos con las flechas.
 
@@ -268,7 +260,7 @@ del pipeline dice exactamente qué módulo fue.*
 *Una cosa más: el repositorio trae el Maven Wrapper, así que ni Jenkins ni nosotras
 instalamos Maven. Todos construimos con la misma versión exacta.*
 
-## Slide 5 · Infraestructura — 1 minuto
+## Slide 5 · Infraestructura — 1 minuto  ·  **Emi**
 
 **Mostrar:** el diagrama de cuatro cajas.
 
@@ -284,7 +276,7 @@ más simple y más estable que meter un Docker dentro de otro.*
 los datos vivieran adentro, se perderían en cada deploy. Por eso están en un volumen
 aparte, y los juegos cargados sobreviven. Eso lo van a ver en la demo.*
 
-## Slide 6 · Pruebas — 1 minuto
+## Slide 6 · Pruebas — 1 minuto  ·  **Emi**
 
 **Mostrar:** los dos números grandes, 30 y 10.
 
@@ -299,7 +291,7 @@ archivo, no cuesta nada, y a cambio el pipeline las corre en etapas distintas. C
 algo falla, el tablero dice al toque si se rompió la lógica de un módulo o la
 interacción entre módulos.*
 
-## Slide 7 · El pipeline — 1 minuto y medio
+## Slide 7 · El pipeline — 1 minuto y medio  ·  **Miranda**
 
 **Mostrar:** la tabla de ocho etapas. **Después abrí el `Jenkinsfile` en el editor.**
 
@@ -318,7 +310,7 @@ cambio al proceso queda en el historial de Git como cualquier otro cambio.*
 > No leas el Jenkinsfile línea por línea. Mostralo, señalá el bloque `stages` y el
 > bloque `post`, y volvé.
 
-## Slide 8 · Disparadores — 45 segundos
+## Slide 8 · Disparadores — 45 segundos  ·  **Miranda**
 
 **Mostrar:** el bloque de código con `githubPush()` y `pollSCM`.
 
@@ -328,7 +320,7 @@ localhost, y GitHub no puede entrar a una máquina que no es visible desde inter
 eso además tenemos polling: Jenkins le pregunta a GitHub cada dos minutos si hubo
 cambios. Eso es lo que van a ver funcionando ahora.*
 
-## Slide 9 · Caso 1 — 3 minutos (demo en vivo)
+## Slide 9 · Caso 1 — 3 minutos (demo en vivo)  ·  **Miranda**
 
 **Mostrar:** la slide primero, después la terminal, después Jenkins, después producción.
 
@@ -367,7 +359,7 @@ viven en el volumen.*
 > minutos y que en un entorno real el webhook lo haría instantáneo. O apretá Build Now y
 > decí que lo estás forzando para no hacerlos esperar.
 
-## Slide 10 · Caso 2 — 3 minutos (demo en vivo)
+## Slide 10 · Caso 2 — 3 minutos (demo en vivo)  ·  **Miranda**
 
 **Mostrar:** la slide, después el editor, después Jenkins, después producción.
 
@@ -413,7 +405,7 @@ git push
 
 *Y cuando pase en verde, ahí sí llega a producción.*
 
-## Slide 11 · Errores encontrados — 1 minuto y medio
+## Slide 11 · Errores encontrados — 1 minuto y medio  ·  **Emi**
 
 **Mostrar:** el recuadro grande del error de Maven.
 
@@ -436,7 +428,7 @@ jars queden en el repositorio local antes de que las pruebas los necesiten.*
 > Esta es la slide que más demuestra que entendieron lo que hicieron. Contala sin apuro.
 > Los otros tres errores están abajo y en la sección 6 del informe: solo mencionalos.
 
-## Slide 12 · Decisiones — 1 minuto
+## Slide 12 · Decisiones — 1 minuto  ·  **Emi**
 
 **Mostrar:** la tabla.
 
@@ -451,7 +443,7 @@ está en un volumen, que es lo que demuestra lo que había que demostrar.*
 despliegue es reproducible en cualquier máquina, cada versión queda etiquetada con su
 número de build, y por lo tanto el rollback es real, no un copiar y pegar.*
 
-## Slide 13 · Cierre — 30 segundos
+## Slide 13 · Cierre — 30 segundos  ·  **Miranda**
 
 *Para cerrar: lo que nos llevamos es que escribir código que funciona y tener un proceso
 que garantice que lo que llega a producción funciona son dos cosas distintas. La app es
