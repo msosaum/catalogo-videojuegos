@@ -128,12 +128,16 @@ queda así:
 | Slides | Quién habla | Qué es |
 |---|---|---|
 | 1 a 6 | **Emi** | Portada, el encargo, la aplicación, la arquitectura, la infraestructura y las pruebas |
-| 7 a 10 | **Miranda** | El pipeline, los disparadores y las dos demos en vivo |
-| 11 y 12 | **Emi** | Los errores que encontramos y las decisiones tomadas |
+| 7 a 11 | **Miranda** | El pipeline, los disparadores, las dos demos en vivo y el error de Maven |
+| 12 | **Emi** | Las decisiones tomadas |
 | 13 | **Miranda** | El cierre |
 
-Son unos 8 minutos cada una: parejo. Emi abre, Miranda cierra, y hay solo tres cambios
-de voz en toda la presentación.
+Unos 10 minutos Miranda y 8 y medio Emi. Emi abre, Miranda cierra.
+
+El criterio detrás del reparto no es solo el tiempo, es **repartir la dificultad**:
+Miranda carga con lo que hay que ejecutar en vivo y con la única slide que pide entender
+algo complicado (la 11, el error de Maven), y Emi con lo descriptivo, que es contar lo
+que está en pantalla sin nada que pueda fallar.
 
 ## Las tres demos son de Miranda
 
@@ -167,10 +171,10 @@ Que la transición sea una frase dicha, no un silencio mientras alguien se acomo
 > *Hasta acá qué construimos y cómo lo probamos. Ahora Miranda les muestra el pipeline
 > que corre todo esto solo.*
 
-**Miranda → Emi, al terminar la slide 10:**
+**Miranda → Emi, al terminar la slide 11:**
 
-> *Eso es el pipeline funcionando. Emi cuenta qué se nos rompió en el camino y por qué
-> tomamos algunas decisiones.*
+> *Eso fue lo que se nos rompió en el camino. Emi cuenta por qué tomamos algunas de las
+> decisiones del proyecto.*
 
 **Emi → Miranda, al terminar la slide 12:**
 
@@ -187,6 +191,26 @@ Que la transición sea una frase dicha, no un silencio mientras alguien se acomo
 - **Las dos tienen que poder contestar lo básico de todo.** El docente puede preguntarle
   a cualquiera cualquier cosa. La Parte 0 y la Parte 3 de este guion son justamente para
   eso: léanlas las dos.
+
+## Cuánto tiene que preparar cada una
+
+**Miranda, unos 30 minutos.** Leer su parte y, sobre todo, ensayar los comandos de las
+slides 9 y 10 dos veces para que salgan sin pensar. Lo único que tiene que *entender* de
+verdad es la slide 11, y son cuatro frases:
+
+> El pipeline corre las pruebas en etapas separadas, llamando a los plugins de Maven por
+> separado. Cuando se llama a un plugin suelto, Maven no corre el ciclo de vida completo,
+> así que los módulos no llegan a generar su jar. Entonces clasificación sale a buscar el
+> jar de catálogo afuera, a Maven Central, donde no está porque es nuestro. Se arregló
+> cambiando `package` por `install`, que sí deja los jars en el repositorio local antes
+> de que las pruebas los necesiten.
+
+**Emi, unos 20 minutos.** Leer la Parte 0 de este guion y el texto de sus 7 slides. Son
+todas descriptivas: contar lo que está en pantalla. La más exigente es la 5, donde tiene
+que poder decir qué es un contenedor y por qué los datos van en un volumen aparte.
+
+**Las dos:** la Parte 3, con las preguntas probables. El docente puede preguntarle
+cualquier cosa a cualquiera.
 
 ## Ensayo
 
@@ -405,7 +429,7 @@ git push
 
 *Y cuando pase en verde, ahí sí llega a producción.*
 
-## Slide 11 · Errores encontrados — 1 minuto y medio  ·  **Emi**
+## Slide 11 · Errores encontrados — 1 minuto y medio  ·  **Miranda**
 
 **Mostrar:** el recuadro grande del error de Maven.
 
