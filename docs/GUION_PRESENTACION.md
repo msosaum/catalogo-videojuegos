@@ -118,6 +118,90 @@ mucho más prolijo que cambiar de computadora en el medio.
 
 ---
 
+# Parte 1.5 — El reparto entre las dos
+
+## El criterio
+
+No conviene partir la presentación por la mitad ("vos la primera parte, yo la segunda"),
+porque deja a una sola persona con los dos momentos de riesgo —las demos en vivo— y a la
+otra sin nada que hacer durante seis minutos.
+
+Mejor repartir **por tema**, con esta idea: *quien explica el pipeline es quien lo hace
+correr*. La demo es el pipeline en acción, así que la explicación y la ejecución quedan
+en la misma voz y no hay que repetir nada.
+
+Eso da tres bloques y dos pases de posta:
+
+| Bloque | Slides | Quién | Tiempo |
+|---|---|---|---|
+| **A — Contexto, producto y pruebas** | 1 a 6 | Persona 1 | ≈ 5 min + 2 min de demo de la app |
+| **B — Pipeline y demos en vivo** | 7 a 10 | Persona 2 | ≈ 8 min |
+| **C — Errores, decisiones y cierre** | 11 a 13 | Persona 1 | ≈ 3 min |
+
+## Quién toma cuál
+
+**Persona 2 (bloque B) debería ser quien esté más cómoda con la terminal y con Git**,
+porque es quien va a tipear en vivo delante de todos. No es cuestión de saber más: es
+cuestión de que tipear con gente mirando pone nerviosa a cualquiera, y conviene que lo
+haga quien lo tenga más automatizado.
+
+**Persona 1 abre y cierra.** Es un buen lugar si preferís hablar a tipear: arrancás con
+el encuadre, explicás la aplicación y las pruebas, y volvés al final con la parte más
+lucida del entregable, que es el error de Maven de la slide 11.
+
+## Los pases de posta
+
+Que la transición sea una frase dicha, no un silencio incómodo mientras alguien se para.
+
+**De Persona 1 a Persona 2, al terminar la slide 6:**
+
+> *Hasta acá qué construimos y cómo lo probamos. Ahora [Emi] les muestra el pipeline que
+> corre todo esto solo.*
+
+**De Persona 2 a Persona 1, al terminar la slide 10:**
+
+> *Eso es el pipeline funcionando. [Miranda] cierra contando qué se nos rompió en el
+> camino y por qué tomamos algunas decisiones.*
+
+## Las reglas del dúo
+
+- **Una sola computadora.** Cambiar de máquina en el medio se ve desprolijo y come
+  tiempo. Todo desde una, con las pestañas ya abiertas.
+- **Quien no habla, maneja el mouse.** Cambia de slide, abre la pestaña que hace falta,
+  recarga producción cuando el build termina. Así quien habla no pelea con el trackpad.
+- **Mientras Jenkins corre, hablan las dos.** Son los 60 a 90 segundos más largos de la
+  presentación si nadie dice nada. Quien maneja el mouse puede ir narrando las etapas
+  que van pasando mientras la otra sigue con la explicación.
+- **Las preguntas las contesta quien dio esa parte.** Si te preguntan algo de tu bloque,
+  contestá vos aunque la otra lo sepa. Si no sabés, pasala en voz alta: *"eso lo armó
+  [Emi], que lo explica mejor"*. Es mucho mejor que improvisar.
+- **Las dos tienen que poder contestar lo básico de todo.** El profesor puede
+  preguntarle a cualquiera cualquier cosa. La Parte 0 y la Parte 3 de este guion son
+  justamente para eso: léanlas las dos.
+
+## Variante, si las dos quieren hacer demo
+
+Si prefieren que cada una tenga su momento en vivo, se puede repartir así:
+
+| Slides | Quién |
+|---|---|
+| 1 a 6 | Persona 1 |
+| 7 y 8 (pipeline y disparadores) | Persona 2 |
+| 9 (Caso 1, integración exitosa) | Persona 1 |
+| 10 (Caso 2, el fallo) | Persona 2 |
+| 11 a 13 | Persona 1 y Persona 2, una slide cada una |
+
+Es más parejo, pero tiene dos pases de posta más en el momento de mayor tensión. Si no
+lo ensayan al menos una vez completo, quedense con el reparto de tres bloques.
+
+## Ensayo
+
+Háganlo una vez entero, con las dos demos de verdad y cronómetro. No para memorizar: para
+descubrir dónde se pisan y cuánto tardan los builds en la máquina que van a usar. Una
+sola pasada completa cambia totalmente cómo sale.
+
+---
+
 # Parte 2 — Qué decir en cada slide
 
 Lo que está en cursiva es la idea, no un texto para memorizar. Decilo con tus palabras:
