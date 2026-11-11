@@ -15,7 +15,7 @@ public enum Genero {
     SIMULACION("Simulacion"),
     PUZZLE("Puzzle"),
     // Demo Caso 1: descomentar esta linea, commitear y pushear.
-    PLATAFORMAS("Plataformas"),
+    //PLATAFORMAS("Plataformas"),
     TERROR("Terror");
 
     private final String etiqueta;
