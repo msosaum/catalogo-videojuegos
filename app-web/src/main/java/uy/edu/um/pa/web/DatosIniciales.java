@@ -23,9 +23,9 @@ public class DatosIniciales {
             catalogo.registrar("The Legend of Zelda: Breath of the Wild", "Aventura", 2017,
                     "https://upload.wikimedia.org/wikipedia/en/c/c6/The_Legend_of_Zelda_Breath_of_the_Wild.jpg");
             catalogo.registrar("Hollow Knight", "Aventura", 2017,
-                    "https://upload.wikimedia.org/wikipedia/en/0/04/Hollow_Knight_first_cover_art.webp");
+                    "https://upload.wikimedia.org/wikipedia/en/d/de/Hollow_Knight_2026_cover_art.jpg");
             catalogo.registrar("Age of Empires II", "Estrategia", 1999,
-                    "https://upload.wikimedia.org/wikipedia/en/b/b2/Age_of_Empires_II_-_The_Age_of_Kings_Coverart.png");
+                    "https://upload.wikimedia.org/wikipedia/en/5/56/Age_of_Empires_II_-_The_Age_of_Kings_Coverart.png");
             catalogo.registrar("Final Fantasy VII", "RPG", 1997,
                     "https://upload.wikimedia.org/wikipedia/en/c/c2/Final_Fantasy_VII_Box_Art.jpg");
             catalogo.registrar("DOOM", "Accion", 1993,

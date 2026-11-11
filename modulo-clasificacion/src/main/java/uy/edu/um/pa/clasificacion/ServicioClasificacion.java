@@ -21,12 +21,8 @@ public class ServicioClasificacion {
      *
      * @throws GeneroDesconocidoException si el texto no corresponde a un genero conocido.
      */
-    public String normalizar(String generoLibre) {
-        return Genero.desde(generoLibre)
-               .map(Genero::getEtiqueta)
-                .orElseThrow(() -> new GeneroDesconocidoException(generoLibre));
-    }
-    //public String normalizar(String generoLibre) { return generoLibre; }
+   
+    public String normalizar(String generoLibre) { return generoLibre; }
 
     public boolean esGeneroValido(String generoLibre) {
         return Genero.desde(generoLibre).isPresent();
