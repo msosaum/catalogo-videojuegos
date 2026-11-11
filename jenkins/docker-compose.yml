@@ -22,7 +22,7 @@ services:
       JENKINS_ADMIN_PASSWORD: admin
       # URL del repositorio GitHub que Jenkins va a clonar (se puede sobreescribir
       # exportando REPO_URL antes de levantar el contenedor).
-      REPO_URL: ${REPO_URL:-https://github.com/CAMBIAR/catalogo-videojuegos.git}
+      REPO_URL: ${REPO_URL:-https://github.com/msosaum/catalogo-videojuegos.git}
     networks:
       - catalogo-red
     restart: unless-stopped
